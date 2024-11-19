@@ -11,7 +11,7 @@
 <%
     String url = "jdbc:mysql://localhost:3306/foodnear_db";
     String username = "root";  // MySQL 사용자 이름
-    String password = "q1w0e4r2!@#"; // MySQL 비밀번호
+    String password = "1234"; // MySQL 비밀번호
 
     Connection conn = null;
     Statement stmt = null;

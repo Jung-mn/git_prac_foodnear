@@ -1,5 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ page session="true" %>
+<%
+    String loggedInName = (String) session.getAttribute("name");
+%>
 <!DOCTYPE html>
 
 <html>
@@ -99,13 +103,29 @@
     </style>
 </head>
 <body>
+
+
     <header>
         <div class="logo">Foodnear</div>
-        <div class="auth-buttons">
-            <a href="register.jsp">회원가입</a>
-            <a href="login.jsp">로그인</a>
-        </div>
+        <div style="text-align: right; padding: 10px;">
+    	<%
+        	if (loggedInName == null) {
+    	%>
+        	<a href="/foodNear/member/login.jsp">로그인</a>
+        	<a href="/foodNear/member/join.jsp">회원가입</a>
+   		<%
+        	} else {
+    	%>
+        	<span><%= loggedInName %>님</span>
+        	<a href="/foodNear/member/logout.jsp">로그아웃</a>
+    	<%
+        	}
+    	%>
+		</div>
     </header>
+    
+    
+    
     <main>
         <form class="filter-form" action="search_results.jsp" method="GET">
             <h2>학교 주변 식당 찾기</h2>
