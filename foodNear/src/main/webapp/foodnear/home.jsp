@@ -5,8 +5,6 @@
     String loggedInName = (String) session.getAttribute("name");
 %>
 <!DOCTYPE html>
-
-<html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -127,32 +125,44 @@
     
     
     <main>
-        <form class="filter-form" action="search_results.jsp" method="GET">
-            <h2>학교 주변 식당 찾기</h2>
-            <div class="form-group">
-                <label>음식 카테고리</label>
-                <label><input type="checkbox" name="category" value="한식"> 한식</label>
-                <label><input type="checkbox" name="category" value="중식"> 중식</label>
-                <label><input type="checkbox" name="category" value="일식"> 일식</label>
-                <label><input type="checkbox" name="category" value="양식"> 양식</label>
-                <label><input type="checkbox" name="category" value="주점"> 주점</label>
-                <label><input type="checkbox" name="category" value="카페"> 카페</label>
-            </div>
-            <div class="form-group">
-                <label>위치</label>
-                <select name="location">
-                    <option value="정문">정문</option>
-                    <option value="후문">후문</option>
-                    <option value="상관없음">상관없음</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>가격 범위</label>
-                <input type="text" name="price_min" placeholder="최소 가격 (숫자 입력)">
-                <input type="text" name="price_max" placeholder="최대 가격 (숫자 입력)">
-            </div>
-            <button type="submit" class="submit-button">검색</button>
-        </form>
+        <form class="filter-form" action="/foodNear/foodnear/resultList.jsp" method="GET">
+        	<h2>학교 주변 식당 찾기</h2>
+    		<!-- 음식 카테고리 -->
+    		<label>음식 카테고리</label>
+    		<div class="form-group">
+        		<label><input type="checkbox" name="category" value="한식"> 한식</label>
+        		<label><input type="checkbox" name="category" value="중식"> 중식</label>
+        		<label><input type="checkbox" name="category" value="일식"> 일식</label>
+        		<label><input type="checkbox" name="category" value="양식"> 양식</label>
+        		<label><input type="checkbox" name="category" value="퓨전"> 주점</label>
+        		<label><input type="checkbox" name="category" value="기타"> 카페</label>
+        		<label><input type="checkbox" name="category" value="주점"> 주점</label>
+        		<label><input type="checkbox" name="category" value="카페"> 카페</label>
+    		</div>
+
+    		<!-- 지역 -->
+    		<div class="form-group">
+    			<label>지역</label>
+    			<select name="position">
+        			<option value="정문">정문</option>
+        			<option value="후문">후문</option>
+        			<option value="상관없음">상관없음</option>
+    			</select>
+    		</div>
+
+    		<!-- 가격 범위 -->
+    		<div class="form-group">
+    			<label>가격 범위</label>
+    			<input type="number" name="priceMin" placeholder="최소 가격"> ~
+    			<input type="number" name="priceMax" placeholder="최대 가격">
+    		</div>
+
+    		<!-- 검색 버튼 -->
+    		<button type="submit" class="submit-button">검색</button>
+    		<%
+    			session.setAttribute("loggedInName", loggedInName);
+    		%>
+		</form>  
     </main>
 </body>
 </html>
