@@ -8,6 +8,7 @@
 <%
     session.setAttribute("loggedInName", loggedInName);
 %>
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -27,13 +28,15 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
+        }   
+        
         .restaurant-photo {
-            width: 100%;
-            height: auto;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
+    		width: 450px; /* 고정 가로 크기 */
+    		height: 300px; /* 고정 세로 크기 */
+    		object-fit: cover; /* 비율을 유지하며 잘라냄 */
+    		border-radius: 10px;
+    		margin-bottom: 20px;
+		}
         .details {
             font-size: 16px;
             line-height: 1.6;
@@ -98,45 +101,45 @@
         <%
             String id = request.getParameter("id");
             if (id == null || id.isEmpty()) {
-                out.println("<h2>잘못된 요청입니다.</h2>");
-            } else {
-                Connection conn = null;
-                PreparedStatement pstmt = null;
-                ResultSet rs = null;
+                out.println("<h2>잘못된 요청입니다. 식당 ID가 제공되지 않았습니다.</h2>");
+                return; // 이후 코드 실행 방지
+            }
 
-                try {
-                    Class.forName("com.mysql.cj.jdbc.Driver");
-                    conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/foodnear_db", "root", "1234");
-                    String sql = "SELECT * FROM foodnear WHERE id = ?";
-                    pstmt = conn.prepareStatement(sql);
-                    pstmt.setInt(1, Integer.parseInt(id));
-                    rs = pstmt.executeQuery();
+            Connection conn = null;
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
 
-                    if (rs.next()) {
+            try {
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/foodnear_db", "root", "1234");
+                String sql = "SELECT * FROM foodnear WHERE id = ?";
+                pstmt = conn.prepareStatement(sql);
+                pstmt.setInt(1, Integer.parseInt(id));
+                rs = pstmt.executeQuery();
+
+                if (rs.next()) {
         %>
-        <h2><%= rs.getString("name") %></h2>
+        <h1><%= rs.getString("name") %></h1>
         <img src="<%= rs.getString("photo") %>" alt="식당 사진" class="restaurant-photo">
         <div class="details">
-            <div>카테고리: <%= rs.getString("category") %></div>
-            <div>지역: <%= rs.getString("position") %></div>
             <div>대표 메뉴: <%= rs.getString("bestmenu") %></div>
-            <div>가격: <%= rs.getInt("price") %></div>
+            <div>가격: <%= rs.getInt("price") %>원</div><br>
             <div>영업시간: <%= rs.getFloat("opentime") %> ~ <%= rs.getFloat("closetime") %></div>
-            <div>브레이크 타임: <%= rs.getString("breaktime") %></div>
-            <div>위치: <%= rs.getString("location") %></div>
+            <div>브레이크 타임: <%= rs.getString("breaktime") %></div><br>
+            <div>위치: 인천광역시 <%= rs.getString("location") %></div>
             <div>네이버평점: <%= rs.getString("navergrade") %></div>
         </div>
         <%
-                    } else {
-                        out.println("<h2>존재하지 않는 식당입니다.</h2>");
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    if (rs != null) rs.close();
-                    if (pstmt != null) pstmt.close();
-                    if (conn != null) conn.close();
+                } else {
+                    out.println("<h2>존재하지 않는 식당입니다.</h2>");
                 }
+            } catch (Exception e) {
+                out.println("<h2>오류가 발생했습니다: " + e.getMessage() + "</h2>");
+                e.printStackTrace();
+            } finally {
+                if (rs != null) try { rs.close(); } catch (Exception e) {}
+                if (pstmt != null) try { pstmt.close(); } catch (Exception e) {}
+                if (conn != null) try { conn.close(); } catch (Exception e) {}
             }
         %>
 
@@ -163,46 +166,57 @@
             <% } %>
         </div>
 
-		<!-- 리뷰 리스트 -->
-		<div>
-    		<h3>리뷰 목록</h3>
-    		<%
-        		Connection conn = null;  // Connection 객체 선언
-        		PreparedStatement pstmt = null;  // PreparedStatement 객체 선언
-        		ResultSet rs = null;  // ResultSet 객체 선언
+        <!-- 리뷰 목록 -->
+        <div>
+            <h3>리뷰 목록</h3>
+            <%
+            	System.out.println("id 파라미터 값: " + id);
+                try {
+                    conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/foodnear_db", "root", "1234");
+                    String query = "SELECT r.id AS review_id, r.rating, r.comment, r.likes, r.dislikes, m.name, m.level, r.created_at " +
+                                   "FROM review r JOIN member m ON r.user_id = m.id WHERE r.food_id = ?";
+                    pstmt = conn.prepareStatement(query);
+                    pstmt.setInt(1, Integer.parseInt(id));
+                    rs = pstmt.executeQuery();
 
-        		try {
-            		// 데이터베이스 연결
-            		conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/foodnear_db", "root", "1234");
-            
-            		// 리뷰 데이터를 가져오는 SQL
-            		String query = "SELECT r.rating, r.comment, m.name, r.created_at FROM review r JOIN member m ON r.user_id = m.id WHERE r.food_id = ?";
-            		pstmt = conn.prepareStatement(query);
-            		pstmt.setInt(1, Integer.parseInt(id));  // 현재 식당 ID를 조건으로 설정
-            		rs = pstmt.executeQuery();
+                    while (rs.next()) {
+            %>
+            <div>
+                <strong><%= rs.getString("name") %> (Level <%= rs.getInt("level") %>)</strong>
+                (<%= rs.getTimestamp("created_at") %>)
+                <p>별점: <%= rs.getFloat("rating") %></p>
+                <p><%= rs.getString("comment") %></p>
 
-            		// 리뷰 목록 출력
-            		while (rs.next()) {
-    		%>
-    		<div>
-        		<strong><%= rs.getString("name") %></strong> 
-        		(<%= rs.getTimestamp("created_at") %>)
-        		<p>별점: <%= rs.getFloat("rating") %></p>
-        		<p><%= rs.getString("comment") %></p>
-    		</div>
-    		<hr>
-    		<%
-            		}
-        		} catch (Exception e) {
-            		e.printStackTrace();  // 오류 출력
-        		} finally {
-            		// 리소스 닫기
-           	 		if (rs != null) try { rs.close(); } catch (SQLException e) { e.printStackTrace(); }
-            		if (pstmt != null) try { pstmt.close(); } catch (SQLException e) { e.printStackTrace(); }
-            		if (conn != null) try { conn.close(); } catch (SQLException e) { e.printStackTrace(); }
-        		}
-    		%>
-</div>
+                <!-- 좋아요/싫어요 버튼 -->
+                <p>
+                    좋아요: <%= rs.getInt("likes") %> 
+                    <form action="likeReview.jsp" method="POST" style="display:inline;">
+                        <input type="hidden" name="review_id" value="<%= rs.getInt("review_id") %>">
+                        <input type="hidden" name="food_id" value="<%= id %>">
+                        <button type="submit">좋아요</button>
+                    </form>
+
+                    싫어요: <%= rs.getInt("dislikes") %> 
+                    <form action="dislikeReview.jsp" method="POST" style="display:inline;">
+                        <input type="hidden" name="review_id" value="<%= rs.getInt("review_id") %>">
+                        <input type="hidden" name="food_id" value="<%= id %>">
+                        <button type="submit">싫어요</button>
+                    </form>
+                </p>
+            </div>
+            <% 
+                    }
+                } catch (Exception e) {
+                    out.println("<h2>리뷰를 가져오는 중 오류가 발생했습니다: " + e.getMessage() + "</h2>");
+                    e.printStackTrace();
+                } finally {
+                    if (rs != null) try { rs.close(); } catch (Exception e) {}
+                    if (pstmt != null) try { pstmt.close(); } catch (Exception e) {}
+                    if (conn != null) try { conn.close(); } catch (Exception e) {}
+                }
+            %>
+        </div>
+    </div>
 </body>
 </html>
 

@@ -106,6 +106,7 @@
                     <option value="재학생">재학생</option>
                     <option value="휴학생">휴학생</option>
                     <option value="졸업생">졸업생</option>
+                    <option value="교수">교수</option>
                 </select>
             </div>
             <div class="form-group">

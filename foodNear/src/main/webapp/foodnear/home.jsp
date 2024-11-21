@@ -45,7 +45,7 @@
             transition: all 0.3s ease;
         }
         .auth-buttons a:hover {
-            background-color: #FFE680; /* 버튼 hover 색상 */
+            background-color: #FFE680; /* 버튼 hover 색상 */ 
         }
         main {
             display: flex;
@@ -115,6 +115,7 @@
         	} else {
     	%>
         	<span><%= loggedInName %>님</span>
+        	<a href="/foodNear/member/mypage.jsp">마이페이지</a>
         	<a href="/foodNear/member/logout.jsp">로그아웃</a>
     	<%
         	}
