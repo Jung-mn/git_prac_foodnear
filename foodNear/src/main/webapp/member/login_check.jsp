@@ -4,6 +4,8 @@
 <%
     String username = request.getParameter("username");
     String password = request.getParameter("password");
+    
+    
 
     Connection conn = null;
     PreparedStatement pstmt = null;
@@ -15,12 +17,13 @@
 
     boolean isValidUser = false;
     String name = "";
+    int user_id = 0;
 
     try {
         Class.forName("com.mysql.cj.jdbc.Driver");
         conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
 
-        String sql = "SELECT name FROM member WHERE username = ? AND password = ?";
+        String sql = "SELECT id, name FROM member WHERE username = ? AND password = ?";
         pstmt = conn.prepareStatement(sql);
         pstmt.setString(1, username);
         pstmt.setString(2, password);
@@ -29,6 +32,8 @@
         if (rs.next()) {
             isValidUser = true;
             name = rs.getString("name");
+            user_id = rs.getInt("id");
+            
         }
     } catch (Exception e) {
         e.printStackTrace();
@@ -41,6 +46,7 @@
     if (isValidUser) {
         session.setAttribute("username", username);
         session.setAttribute("name", name);
+        session.setAttribute("user_id", user_id);
         out.println("<script>alert('로그인되었습니다.'); location.href='../foodnear/home.jsp';</script>");
     } else {
         out.println("<script>alert('아이디, 혹은 비밀번호가 일치하지 않습니다.'); history.back();</script>");

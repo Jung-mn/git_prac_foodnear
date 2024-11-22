@@ -3,10 +3,11 @@
 <%@ page import="java.sql.*" %>
 <% 
 	String loggedInName = (String) session.getAttribute("loggedInName");
-    Integer userId = (Integer) session.getAttribute("user_id");
+	Integer userId = (Integer) session.getAttribute("userId");
 %>
 <%
     session.setAttribute("loggedInName", loggedInName);
+	session.setAttribute("userId", userId);
 %>
 
 <!DOCTYPE html>
@@ -19,7 +20,7 @@
             font-family: Arial, sans-serif;
             background-color: #FFF9E5; /* 노란 파스텔 톤 */
             margin: 0;
-            padding: 20px;
+            padding: 0;
         }
         .container {
             max-width: 800px;
@@ -56,9 +57,11 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         .logo {
+            cursor: pointer; /* 클릭할 수 있는 모양으로 변경 */
             font-size: 24px;
             font-weight: bold;
             color: #333;
+            
         }
         .auth-buttons {
             display: flex;
@@ -76,13 +79,18 @@
         .auth-buttons a:hover {
             background-color: #FFE680; /* 버튼 hover 색상 */
         }
+        .strong {
+        	font-weight: bold;
+        	font-size: 20px;
+        	margin-top: 6px;
+        }
     </style>
 </head>
 <body>
 
 	<header>
-        <div class="logo">Foodnear</div>
-        <div style="text-align: right; padding: 10px;">
+        <div class="logo" onclick="location.href='home.jsp'">Foodnear</div>
+        <div class="auth-buttons">
     	<%
         	if (loggedInName == null) {
     	%>
@@ -91,7 +99,7 @@
    		<%
         	} else {
     	%>
-        	<span><%= loggedInName %>님</span>
+        	<span class="strong"><%= loggedInName %>님</span>
         	<a href="/foodNear/member/mypage.jsp">마이페이지</a>
         	<a href="/foodNear/member/logout.jsp">로그아웃</a>
     	<%
