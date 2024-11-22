@@ -79,6 +79,7 @@
     </style>
 </head>
 <body>
+
 	<header>
         <div class="logo">Foodnear</div>
         <div style="text-align: right; padding: 10px;">
@@ -91,20 +92,24 @@
         	} else {
     	%>
         	<span><%= loggedInName %>님</span>
+        	<a href="/foodNear/member/mypage.jsp">마이페이지</a>
         	<a href="/foodNear/member/logout.jsp">로그아웃</a>
     	<%
         	}
     	%>
 		</div>
     </header>
+    
     <div class="container">
-        <%
+        <%  
+        	/* foodnear테이블의 id를 이용해 1차 확인 */
             String id = request.getParameter("id");
             if (id == null || id.isEmpty()) {
                 out.println("<h2>잘못된 요청입니다. 식당 ID가 제공되지 않았습니다.</h2>");
                 return; // 이후 코드 실행 방지
             }
-
+		
+            /* foodnear테이블의 id를 이용해 sql연결 */
             Connection conn = null;
             PreparedStatement pstmt = null;
             ResultSet rs = null;
@@ -119,6 +124,8 @@
 
                 if (rs.next()) {
         %>
+        
+        <!-- 식당 세부정보 가져오기 -->
         <h1><%= rs.getString("name") %></h1>
         <img src="<%= rs.getString("photo") %>" alt="식당 사진" class="restaurant-photo">
         <div class="details">
@@ -165,57 +172,94 @@
             <p>로그인 후 리뷰를 남길 수 있습니다.</p>
             <% } %>
         </div>
+                
+        <!-- 리뷰 목록 정렬 옵션 -->
+		<div>
+    		<h3>리뷰 목록</h3>
+    		<form action="foodInfor.jsp" method="GET">
+        		<input type="hidden" name="id" value="<%= id %>">
+        		<label for="sort">정렬:</label>
+        		<select name="sort" id="sort" onchange="this.form.submit()">
+            		<option value="latest" <%= "latest".equals(request.getParameter("sort")) || request.getParameter("sort") == null ? "selected" : "" %>>최신순</option>
+            		<option value="most_likes" <%= "most_likes".equals(request.getParameter("sort")) ? "selected" : "" %>>좋아요 많은순</option>
+            		<option value="highest_rating" <%= "highest_rating".equals(request.getParameter("sort")) ? "selected" : "" %>>높은 평점 순</option>
+            		<option value="lowest_rating" <%= "lowest_rating".equals(request.getParameter("sort")) ? "selected" : "" %>>낮은 평점 순</option>
+            		<option value="highest_level" <%= "highest_level".equals(request.getParameter("sort")) ? "selected" : "" %>>레벨 높은 순</option>
+        		</select>
+    		</form>
+		</div>
 
-        <!-- 리뷰 목록 -->
-        <div>
-            <h3>리뷰 목록</h3>
-            <%
-            	System.out.println("id 파라미터 값: " + id);
-                try {
-                    conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/foodnear_db", "root", "1234");
-                    String query = "SELECT r.id AS review_id, r.rating, r.comment, r.likes, r.dislikes, m.name, m.level, r.created_at " +
-                                   "FROM review r JOIN member m ON r.user_id = m.id WHERE r.food_id = ?";
-                    pstmt = conn.prepareStatement(query);
-                    pstmt.setInt(1, Integer.parseInt(id));
-                    rs = pstmt.executeQuery();
+		<%
+    		// 기본 정렬 기준
+    		String sortOption = request.getParameter("sort");
+    		if (sortOption == null || sortOption.isEmpty()) {
+    		    sortOption = "latest";
+    		}
 
-                    while (rs.next()) {
-            %>
-            <div>
-                <strong><%= rs.getString("name") %> (Level <%= rs.getInt("level") %>)</strong>
-                (<%= rs.getTimestamp("created_at") %>)
-                <p>별점: <%= rs.getFloat("rating") %></p>
-                <p><%= rs.getString("comment") %></p>
-
-                <!-- 좋아요/싫어요 버튼 -->
-                <p>
-                    좋아요: <%= rs.getInt("likes") %> 
-                    <form action="likeReview.jsp" method="POST" style="display:inline;">
-                        <input type="hidden" name="review_id" value="<%= rs.getInt("review_id") %>">
-                        <input type="hidden" name="food_id" value="<%= id %>">
-                        <button type="submit">좋아요</button>
-                    </form>
-
-                    싫어요: <%= rs.getInt("dislikes") %> 
-                    <form action="dislikeReview.jsp" method="POST" style="display:inline;">
-                        <input type="hidden" name="review_id" value="<%= rs.getInt("review_id") %>">
-                        <input type="hidden" name="food_id" value="<%= id %>">
-                        <button type="submit">싫어요</button>
-                    </form>
-                </p>
-            </div>
-            <% 
-                    }
-                } catch (Exception e) {
-                    out.println("<h2>리뷰를 가져오는 중 오류가 발생했습니다: " + e.getMessage() + "</h2>");
-                    e.printStackTrace();
-                } finally {
-                    if (rs != null) try { rs.close(); } catch (Exception e) {}
-                    if (pstmt != null) try { pstmt.close(); } catch (Exception e) {}
-                    if (conn != null) try { conn.close(); } catch (Exception e) {}
-                }
-            %>
-        </div>
+    		// 정렬 기준에 따라 SQL ORDER BY 조건 설정
+    		String orderByClause = "r.created_at DESC"; // 최신순 기본값
+    		switch (sortOption) {
+        		case "most_likes":
+            		orderByClause = "r.likes DESC";
+		            break;
+		        case "highest_rating":
+		            orderByClause = "r.rating DESC";
+		            break;
+		        case "lowest_rating":
+		            orderByClause = "r.rating ASC";
+		            break;
+		        case "highest_level":
+		            orderByClause = "m.level DESC";
+		            break;
+		    }
+		%>
+		
+		<%
+		    try {
+		        conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/foodnear_db", "root", "1234");
+		        String query = "SELECT r.id AS review_id, r.rating, r.comment, r.likes, r.dislikes, m.name, m.level, r.created_at " +
+		                       "FROM review r JOIN member m ON r.user_id = m.id WHERE r.food_id = ? ORDER BY " + orderByClause;
+		        pstmt = conn.prepareStatement(query);
+		        pstmt.setInt(1, Integer.parseInt(id));
+		        rs = pstmt.executeQuery();
+		
+		        while (rs.next()) {
+		%>
+		<div>
+		    <strong><%= rs.getString("name") %> (Level <%= rs.getInt("level") %>)</strong>
+		    (<%= rs.getTimestamp("created_at") %>)
+		    <p>별점: <%= rs.getFloat("rating") %></p>
+		    <p><%= rs.getString("comment") %></p>
+                
+        
+		<!-- 좋아요/싫어요 버튼 -->
+		    <p>
+		        좋아요: <%= rs.getInt("likes") %> 
+		        <form action="likeReview.jsp" method="POST" style="display:inline;">
+		            <input type="hidden" name="review_id" value="<%= rs.getInt("review_id") %>">
+		            <input type="hidden" name="food_id" value="<%= id %>">
+		            <button type="submit">좋아요</button>
+		        </form>
+		
+		        싫어요: <%= rs.getInt("dislikes") %> 
+		        <form action="dislikeReview.jsp" method="POST" style="display:inline;">
+		            <input type="hidden" name="review_id" value="<%= rs.getInt("review_id") %>">
+		            <input type="hidden" name="food_id" value="<%= id %>">
+		            <button type="submit">싫어요</button>
+		        </form>
+		    </p>
+		</div>
+		<%
+		        }
+		    } catch (Exception e) {
+		        out.println("<h2>리뷰를 가져오는 중 오류가 발생했습니다: " + e.getMessage() + "</h2>");
+		        e.printStackTrace();
+		    } finally {
+		        if (rs != null) try { rs.close(); } catch (Exception e) {}
+		        if (pstmt != null) try { pstmt.close(); } catch (Exception e) {}
+		        if (conn != null) try { conn.close(); } catch (Exception e) {}
+		    }
+		%>       
     </div>
 </body>
 </html>

@@ -104,6 +104,7 @@
     </style>
 </head>
 <body>
+
 	<header>
         <div class="logo">Foodnear</div>
         <div style="text-align: right; padding: 10px;">
@@ -116,6 +117,7 @@
         	} else {
     	%>
         	<span><%= loggedInName %>님</span>
+        	<a href="/foodNear/member/mypage.jsp">마이페이지</a>
         	<a href="/foodNear/member/logout.jsp">로그아웃</a>
     	<%
         	}
@@ -144,7 +146,8 @@
                 <input type="hidden" name="position" value="<%= position %>">
                 <input type="hidden" name="priceMin" value="<%= priceMin %>">
                 <input type="hidden" name="priceMax" value="<%= priceMax %>">
-
+                
+				<!-- 정렬 종류 -->
                 <select name="sort" onchange="this.form.submit()">
                     <option value="alphabetical" <%= "alphabetical".equals(request.getParameter("sort")) ? "selected" : "" %>>가나다 순</option>
                     <option value="lowprice" <%= "lowprice".equals(request.getParameter("sort")) ? "selected" : "" %>>낮은 가격 순</option>
@@ -155,7 +158,8 @@
             </form>
         </div>
 
-        <%
+        <%	
+        	/* 정렬 종류 */
             String sort = request.getParameter("sort");
             StringBuilder query = new StringBuilder("SELECT id, name, bestmenu, price, opentime, closetime, photo, navergrade FROM foodnear WHERE 1=1");
 
@@ -211,6 +215,7 @@
                     String photo = rs.getString("photo");
                     float navergrade = rs.getFloat("navergrade");
         %>
+        			<!-- 식당 정보 -->
                     <div class="result-item">
                         <img src="<%= photo %>" alt="식당 사진">
                         <div>
@@ -222,7 +227,7 @@
                         </div>
                     </div>
         <%
-                }
+        	 }
             } catch (Exception e) {
                 out.println("<p>데이터를 불러오는 중 문제가 발생했습니다.</p>");
                 e.printStackTrace();

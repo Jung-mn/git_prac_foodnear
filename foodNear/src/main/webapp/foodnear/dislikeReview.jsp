@@ -52,6 +52,8 @@
         pstmt.setString(2, loggedInName);
         pstmt.executeUpdate();
         
+        //싫어요는 누적 싫어요 데이터를 저장할 필요가 없음 -> 할까?
+        
     } catch (SQLException e) {
         e.printStackTrace();
     } finally {

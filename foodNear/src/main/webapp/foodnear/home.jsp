@@ -102,9 +102,8 @@
 </head>
 <body>
 
-
     <header>
-        <div class="logo">Foodnear</div>
+        <div class="logo">Foodnear</div> <!--  -->
         <div style="text-align: right; padding: 10px;">
     	<%
         	if (loggedInName == null) {
@@ -122,12 +121,11 @@
     	%>
 		</div>
     </header>
-    
-    
-    
+      
     <main>
         <form class="filter-form" action="/foodNear/foodnear/resultList.jsp" method="GET">
         	<h2>학교 주변 식당 찾기</h2>
+        	
     		<!-- 음식 카테고리 -->
     		<label>음식 카테고리</label>
     		<div class="form-group">
