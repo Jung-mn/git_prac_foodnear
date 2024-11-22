@@ -84,6 +84,113 @@
         	font-size: 20px;
         	margin-top: 6px;
         }
+        .review-section {
+        margin-top: 30px;
+	    }
+	
+	    .review-section h2 {
+	        border-bottom: 2px solid #FFB347; /* 밝은 오렌지 톤 */
+	        padding-bottom: 5px;
+	        margin-bottom: 20px;
+	        color: #333;
+	    }
+	
+	    .review-form {
+	        margin-bottom: 20px;
+	        background-color: #FFF9E5; /* 노란 파스텔 배경 */
+	        padding: 15px;
+	        border: 1px solid #FFEBB3;
+	        border-radius: 10px;
+	    }
+	
+	    .review-form label {
+	        display: block;
+	        font-weight: bold;
+	        margin-bottom: 5px;
+	        color: #333;
+	    }
+	
+	    .review-form textarea {
+	        width: 100%;
+	        padding: 10px;
+	        border: 1px solid #CCC;
+	        border-radius: 5px;
+	        resize: none;
+	        margin-bottom: 15px;
+	    }
+	
+	    .review-form select,
+	    .review-form button {
+	        display: inline-block;
+	        padding: 10px;
+	        font-size: 14px;
+	        margin-bottom: 10px;
+	        border: 1px solid #CCC;
+	        border-radius: 5px;
+	        cursor: pointer;
+	    }
+	
+	    .review-form button {
+	        background-color: #FFB347; /* 밝은 오렌지 톤 */
+	        color: white;
+	        border: none;
+	        transition: background-color 0.3s ease;
+	    }
+	
+	    .review-form button:hover {
+	        background-color: #FF9A33; /* 더 짙은 오렌지 톤 */
+	    }
+	
+	    .review-list {
+	        margin-top: 20px;
+	    }
+	
+	    .review-item {
+	        padding: 15px;
+	        border: 1px solid #DDD;
+	        border-radius: 10px;
+	        margin-bottom: 15px;
+	        background-color: #FAFAFA; /* 연한 배경색 */
+	        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	    }
+	
+	    .review-item strong {
+	        color: #FF9A33; /* 강조된 오렌지 톤 */
+	        font-size: 16px;
+	    }
+	
+	    .review-item p {
+	        margin: 5px 0;
+	    }
+	
+	    .review-item .review-meta {
+	        font-size: 12px;
+	        color: #777;
+	        margin-bottom: 10px;
+	    }
+	
+	    .like-dislike {
+	        display: flex;
+	        gap: 10px;
+	    }
+	
+	    .like-dislike form {
+	        display: inline;
+	    }
+	
+	    .like-dislike button {
+	        background-color: #FFB347;
+	        color: white;
+	        padding: 5px 10px;
+	        border: none;
+	        border-radius: 5px;
+	        cursor: pointer;
+	        font-size: 12px;
+	    }
+	
+	    .like-dislike button:hover {
+	        background-color: #FF9A33;
+	    }
     </style>
 </head>
 <body>
@@ -159,103 +266,121 @@
         %>
 
         <!-- 리뷰 작성 -->
-        <div>
-            <h2>리뷰</h2>
-            <% if (loggedInName != null) { %>
-            <form action="submitReview.jsp" method="POST">
-                <input type="hidden" name="food_id" value="<%= id %>">
-                <label for="rating">별점:</label>
-                <select name="rating" required>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                </select>
-                <label for="comment">댓글:</label>
-                <textarea name="comment" rows="3" required></textarea>
-                <button type="submit">리뷰 남기기</button>
-            </form>
-            <% } else { %>
-            <p>로그인 후 리뷰를 남길 수 있습니다.</p>
-            <% } %>
-        </div>
-                
-        <!-- 리뷰 목록 정렬 옵션 -->
-		<div>
-    		<h3>리뷰 목록</h3>
-    		<form action="foodInfor.jsp" method="GET">
-        		<input type="hidden" name="id" value="<%= id %>">
-        		<label for="sort">정렬:</label>
-        		<select name="sort" id="sort" onchange="this.form.submit()">
-            		<option value="latest" <%= "latest".equals(request.getParameter("sort")) || request.getParameter("sort") == null ? "selected" : "" %>>최신순</option>
-            		<option value="most_likes" <%= "most_likes".equals(request.getParameter("sort")) ? "selected" : "" %>>좋아요 많은순</option>
-            		<option value="highest_rating" <%= "highest_rating".equals(request.getParameter("sort")) ? "selected" : "" %>>높은 평점 순</option>
-            		<option value="lowest_rating" <%= "lowest_rating".equals(request.getParameter("sort")) ? "selected" : "" %>>낮은 평점 순</option>
-            		<option value="highest_level" <%= "highest_level".equals(request.getParameter("sort")) ? "selected" : "" %>>레벨 높은 순</option>
-        		</select>
-    		</form>
-		</div>
-
-		<%
-    		// 기본 정렬 기준
-    		String sortOption = request.getParameter("sort");
-    		if (sortOption == null || sortOption.isEmpty()) {
-    		    sortOption = "latest";
-    		}
-
-    		// 정렬 기준에 따라 SQL ORDER BY 조건 설정
-    		String orderByClause = "r.created_at DESC"; // 최신순 기본값
-    		switch (sortOption) {
-        		case "most_likes":
-            		orderByClause = "r.likes DESC";
-		            break;
-		        case "highest_rating":
-		            orderByClause = "r.rating DESC";
-		            break;
-		        case "lowest_rating":
-		            orderByClause = "r.rating ASC";
-		            break;
-		        case "highest_level":
-		            orderByClause = "m.level DESC";
-		            break;
-		    }
-		%>
+        <div class="review-section">
+		    <h2>리뷰</h2>
 		
-		<%
-		    try {
-		        conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/foodnear_db", "root", "1234");
-		        String query = "SELECT r.id AS review_id, r.rating, r.comment, r.likes, r.dislikes, m.name, m.level, r.created_at " +
-		                       "FROM review r JOIN member m ON r.user_id = m.id WHERE r.food_id = ? ORDER BY " + orderByClause;
-		        pstmt = conn.prepareStatement(query);
-		        pstmt.setInt(1, Integer.parseInt(id));
-		        rs = pstmt.executeQuery();
-		
-		        while (rs.next()) {
-		%>
-		<div>
-		    <strong><%= rs.getString("name") %> (Level <%= rs.getInt("level") %>)</strong>
-		    (<%= rs.getTimestamp("created_at") %>)
-		    <p>별점: <%= rs.getFloat("rating") %></p>
-		    <p><%= rs.getString("comment") %></p>
-                
-        
-		<!-- 좋아요/싫어요 버튼 -->
-		    <p>
-		        좋아요: <%= rs.getInt("likes") %> 
-		        <form action="likeReview.jsp" method="POST" style="display:inline;">
-		            <input type="hidden" name="review_id" value="<%= rs.getInt("review_id") %>">
+		    <% if (loggedInName != null) { %>
+		    <div class="review-form">
+		        <form action="submitReview.jsp" method="POST">
 		            <input type="hidden" name="food_id" value="<%= id %>">
-		            <button type="submit">좋아요</button>
+		            <label for="rating">별점:</label>
+		            <select name="rating" required>
+		                <option value="1">1</option>
+		                <option value="2">2</option>
+		                <option value="3">3</option>
+		                <option value="4">4</option>
+		                <option value="5">5</option>
+		            </select>
+		            <label for="comment">댓글:</label>
+		            <textarea name="comment" rows="3" required></textarea>
+		            <button type="submit">리뷰 남기기</button>
 		        </form>
-		
-		        싫어요: <%= rs.getInt("dislikes") %> 
-		        <form action="dislikeReview.jsp" method="POST" style="display:inline;">
-		            <input type="hidden" name="review_id" value="<%= rs.getInt("review_id") %>">
-		            <input type="hidden" name="food_id" value="<%= id %>">
-		            <button type="submit">싫어요</button>
-		        </form>
-		    </p>
+		    </div>
+		    <% } else { %>
+		    <p>로그인 후 리뷰를 남길 수 있습니다.</p>
+		    <% } %>
+
+                
+	        <!-- 리뷰 목록 정렬 옵션 -->
+			<div>
+	    		<h3>리뷰 목록</h3>
+	    		<form action="foodInfor.jsp" method="GET">
+	        		<input type="hidden" name="id" value="<%= id %>">
+	        		<label for="sort">정렬:</label>
+	        		<select name="sort" id="sort" onchange="this.form.submit()">
+	            		<option value="latest" <%= "latest".equals(request.getParameter("sort")) || request.getParameter("sort") == null ? "selected" : "" %>>최신순</option>
+	            		<option value="most_likes" <%= "most_likes".equals(request.getParameter("sort")) ? "selected" : "" %>>좋아요 많은순</option>
+	            		<option value="highest_rating" <%= "highest_rating".equals(request.getParameter("sort")) ? "selected" : "" %>>높은 평점 순</option>
+	            		<option value="lowest_rating" <%= "lowest_rating".equals(request.getParameter("sort")) ? "selected" : "" %>>낮은 평점 순</option>
+	            		<option value="highest_level" <%= "highest_level".equals(request.getParameter("sort")) ? "selected" : "" %>>레벨 높은 순</option>
+	        		</select>
+	    		</form>
+			</div>
+	
+			<%
+	    		// 기본 정렬 기준
+	    		String sortOption = request.getParameter("sort");
+	    		if (sortOption == null || sortOption.isEmpty()) {
+	    		    sortOption = "latest";
+	    		}
+	
+	    		// 정렬 기준에 따라 SQL ORDER BY 조건 설정
+	    		String orderByClause = "r.created_at DESC"; // 최신순 기본값
+	    		switch (sortOption) {
+	        		case "most_likes":
+	            		orderByClause = "r.likes DESC";
+			            break;
+			        case "highest_rating":
+			            orderByClause = "r.rating DESC";
+			            break;
+			        case "lowest_rating":
+			            orderByClause = "r.rating ASC";
+			            break;
+			        case "highest_level":
+			            orderByClause = "m.level DESC";
+			            break;
+			    }
+			%>
+			
+			<%
+			    try {
+			        conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/foodnear_db", "root", "1234");
+			        String query = "SELECT r.id AS review_id, r.user_id, r.rating, r.comment, r.likes, r.dislikes, m.name, m.level, r.created_at " +
+			                       "FROM review r JOIN member m ON r.user_id = m.id WHERE r.food_id = ? ORDER BY " + orderByClause;
+			        pstmt = conn.prepareStatement(query);
+			        pstmt.setInt(1, Integer.parseInt(id));
+			        rs = pstmt.executeQuery();
+			
+			        while (rs.next()) {
+			%>
+			<div class="review-list">
+		        <% while (rs.next()) { %>
+		        <div class="review-item">
+		            <strong><%= rs.getString("name") %> (Level <%= rs.getInt("level") %>)</strong>
+		            <div class="review-meta">
+		                <span>작성일: <%= rs.getTimestamp("created_at") %></span>
+		            </div>
+		            <p>별점: ★ <%= rs.getFloat("rating") %> / 5</p>
+		            <p><%= rs.getString("comment") %></p>
+		            <div class="like-dislike">
+		                <form action="likeReview.jsp" method="POST">
+		                    <input type="hidden" name="review_id" value="<%= rs.getInt("review_id") %>">
+		                    <input type="hidden" name="food_id" value="<%= id %>">
+		                    <button type="submit">좋아요 (<%= rs.getInt("likes") %>)</button>
+		                </form>
+		                <form action="dislikeReview.jsp" method="POST">
+		                    <input type="hidden" name="review_id" value="<%= rs.getInt("review_id") %>">
+		                    <input type="hidden" name="food_id" value="<%= id %>">
+		                    <button type="submit">싫어요 (<%= rs.getInt("dislikes") %>)</button>
+		                </form>
+		                
+		                <!-- 삭제 버튼: 본인 리뷰일 경우에만 표시 -->
+				    <% 
+				        int reviewUserId = rs.getInt("user_id"); // 리뷰 작성자의 ID
+				        if (userId != null && reviewUserId == userId) { 
+				    %>
+				        <form action="deleteReview.jsp" method="POST" style="display:inline;">
+				            <input type="hidden" name="review_id" value="<%= rs.getInt("review_id") %>">
+				            <input type="hidden" name="food_id" value="<%= id %>">
+				            <button type="submit" onclick="return confirm('정말 삭제하시겠습니까?');">삭제</button>
+				        </form>
+				    <% } %>
+		                
+		                
+		            </div>
+		        </div>
+		        <% } %>
+		    </div>
 		</div>
 		<%
 		        }

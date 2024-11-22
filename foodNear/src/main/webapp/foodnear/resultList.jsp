@@ -158,10 +158,11 @@
 				<!-- 정렬 종류 -->
                 <select name="sort" onchange="this.form.submit()">
                     <option value="alphabetical" <%= "alphabetical".equals(request.getParameter("sort")) ? "selected" : "" %>>가나다 순</option>
-                    <option value="lowprice" <%= "lowprice".equals(request.getParameter("sort")) ? "selected" : "" %>>낮은 가격 순</option>
-                    <option value="highprice" <%= "highprice".equals(request.getParameter("sort")) ? "selected" : "" %>>높은 가격 순</option>
+                    <option value="highF_rating" <%= "highF_rating".equals(request.getParameter("sort")) ? "selected" : "" %>>평점 높은순</option>
                     <option value="highrating" <%= "highrating".equals(request.getParameter("sort")) ? "selected" : "" %>>네이버평점 높은순</option>
                     <option value="lowrating" <%= "lowrating".equals(request.getParameter("sort")) ? "selected" : "" %>>네이버평점 낮은순</option>
+                    <option value="lowprice" <%= "lowprice".equals(request.getParameter("sort")) ? "selected" : "" %>>낮은 가격 순</option>
+                    <option value="highprice" <%= "highprice".equals(request.getParameter("sort")) ? "selected" : "" %>>높은 가격 순</option>
                 </select>
             </form>
         </div>
@@ -169,7 +170,7 @@
         <%	
         	/* 정렬 종류 */
             String sort = request.getParameter("sort");
-            StringBuilder query = new StringBuilder("SELECT id, name, bestmenu, price, opentime, closetime, photo, navergrade FROM foodnear WHERE 1=1");
+            StringBuilder query = new StringBuilder("SELECT id, name, bestmenu, price, opentime, closetime, navergrade, f_rating, photo FROM foodnear WHERE 1=1");
 
             if (categories != null && categories.length > 0) {
                 query.append(" AND category IN (");
@@ -191,14 +192,16 @@
 
             if ("alphabetical".equals(sort)) {
                 query.append(" ORDER BY name ASC");
-            } else if ("lowprice".equals(sort)) {
-                query.append(" ORDER BY price ASC");
-            } else if ("highprice".equals(sort)) {
-                query.append(" ORDER BY price DESC");
+            } else if ("highF_rating".equals(sort)) {
+            	query.append(" ORDER BY f_rating DESC");
             } else if ("highrating".equals(sort)) {
                 query.append(" ORDER BY navergrade DESC");
             } else if ("lowrating".equals(sort)) {
                 query.append(" ORDER BY navergrade ASC");
+            } else if ("lowprice".equals(sort)) {
+                query.append(" ORDER BY price ASC");
+            } else if ("highprice".equals(sort)) {
+                query.append(" ORDER BY price DESC");
             } else {
                 query.append(" ORDER BY name ASC");
             }
@@ -219,9 +222,10 @@
                     String bestmenu = rs.getString("bestmenu");
                     int price = rs.getInt("price");
                     float opentime = rs.getFloat("opentime");
-                    float closetime = rs.getFloat("closetime");
-                    String photo = rs.getString("photo");
+                    float closetime = rs.getFloat("closetime");                   
                     float navergrade = rs.getFloat("navergrade");
+                    float f_rating = rs.getFloat("f_rating");
+                    String photo = rs.getString("photo");
         %>
         			<!-- 식당 정보 -->
                     <div class="result-item">
@@ -231,6 +235,7 @@
                             <p><strong>대표 메뉴:</strong> <%= bestmenu %></p>
                             <p><strong>가격:</strong> <%= price %></p>
                             <p><strong>영업시간:</strong> <%= opentime %> ~ <%= closetime %></p>
+                            <p><strong>평점:</strong> <%= f_rating %></p>
                             <p><strong>네이버 평점:</strong> <%= navergrade %></p>
                         </div>
                     </div>

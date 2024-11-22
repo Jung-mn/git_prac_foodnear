@@ -41,6 +41,15 @@
 
         pstmt.executeUpdate();
         
+     // 리뷰 추가 후 해당 food_id에 대한 별점 평균값을 계산
+        String updateRatingQuery = "UPDATE foodnear f " +
+                                   "SET f.f_rating = (SELECT AVG(r.rating) FROM review r WHERE r.food_id = f.id) " +
+                                   "WHERE f.id = ?";
+        pstmt = connection.prepareStatement(updateRatingQuery);
+        pstmt.setInt(1, foodId);
+        pstmt.executeUpdate();
+        
+        
     } catch (SQLException e) {
         e.printStackTrace();
     } finally {
