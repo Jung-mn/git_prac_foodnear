@@ -144,10 +144,9 @@
         		<label><input type="checkbox" name="category" value="중식"> 중식</label>
         		<label><input type="checkbox" name="category" value="일식"> 일식</label>
         		<label><input type="checkbox" name="category" value="양식"> 양식</label>
-        		<label><input type="checkbox" name="category" value="퓨전"> 주점</label>
-        		<label><input type="checkbox" name="category" value="기타"> 카페</label>
+        		<label><input type="checkbox" name="category" value="기타"> 기타</label>
         		<label><input type="checkbox" name="category" value="주점"> 주점</label>
-        		<label><input type="checkbox" name="category" value="카페"> 카페</label>
+        		<label><input type="checkbox" name="category" value="디저트"> 디저트</label>
     		</div>
 
     		<!-- 지역 -->

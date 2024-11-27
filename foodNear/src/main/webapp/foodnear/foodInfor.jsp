@@ -85,8 +85,12 @@
         	margin-top: 6px;
         }
         .review-section {
-        margin-top: 30px;
-	    }
+        display: flex; /* 또는 grid */
+  		flex-direction: column; /* 세로로 정렬 */
+  		gap: 10px; /* 리뷰 사이의 간격 */
+	  	max-height: 400px; /* 필요에 따라 고정 높이 설정 */
+	  	overflow-y: auto; /* 내용이 넘칠 경우 스크롤 활성화 */
+		    }
 	
 	    .review-section h2 {
 	        border-bottom: 2px solid #FFB347; /* 밝은 오렌지 톤 */
@@ -191,6 +195,61 @@
 	    .like-dislike button:hover {
 	        background-color: #FF9A33;
 	    }
+	    /* 새 스타일 추가 */
+		.restaurant-info {
+		    text-align: center;
+		    margin-top: 20px;
+		}
+		
+		.restaurant-name {
+		    font-size: 32px;
+		    color: #FF9A33; /* 강조된 주황색 */
+		    margin-bottom: 20px;
+		    font-weight: bold;
+		}
+		
+		.photo-container {
+		    display: flex;
+		    justify-content: center;
+		    margin-bottom: 20px;
+		}
+		
+		.restaurant-photo {
+		    width: 100%;
+		    max-width: 500px;
+		    height: auto;
+		    border-radius: 10px;
+		    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		}
+		
+		.details {
+		    background-color: #FFFBF0; /* 부드러운 크림색 배경 */
+		    padding: 20px;
+		    border-radius: 10px;
+		    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		    font-size: 16px;
+		    line-height: 1.8;
+		}
+		
+		.detail-item {
+		    display: flex;
+		    justify-content: space-between;
+		    margin-bottom: 15px;
+		    border-bottom: 1px dashed #FFEBB3; /* 구분선 */
+		    padding-bottom: 5px;
+		}
+		
+		.detail-label {
+		    font-weight: bold;
+		    color: #333;
+		}
+		
+		.detail-value {
+		    color: #555;
+		    text-align: right;
+		    font-weight: 500;
+		}
+	    
     </style>
 </head>
 <body>
@@ -241,16 +300,40 @@
         %>
         
         <!-- 식당 세부정보 가져오기 -->
-        <h1><%= rs.getString("name") %></h1>
-        <img src="<%= rs.getString("photo") %>" alt="식당 사진" class="restaurant-photo">
-        <div class="details">
-            <div>대표 메뉴: <%= rs.getString("bestmenu") %></div>
-            <div>가격: <%= rs.getInt("price") %>원</div><br>
-            <div>영업시간: <%= rs.getFloat("opentime") %> ~ <%= rs.getFloat("closetime") %></div>
-            <div>브레이크 타임: <%= rs.getString("breaktime") %></div><br>
-            <div>위치: 인천광역시 <%= rs.getString("location") %></div>
-            <div>네이버평점: <%= rs.getString("navergrade") %></div>
-        </div>
+		<div class="restaurant-info">
+		    <h1 class="restaurant-name"><%= rs.getString("name") %></h1>
+		    <div class="photo-container">
+		        <img src="<%= rs.getString("photo") %>" alt="식당 사진" class="restaurant-photo">
+		    </div>
+		    <div class="details">
+		        <div class="detail-item">
+		            <span class="detail-label">대표 메뉴:</span>
+		            <span class="detail-value"><%= rs.getString("bestmenu") %></span>
+		        </div>
+		        <div class="detail-item">
+		            <span class="detail-label">가격:</span>
+		            <span class="detail-value"><%= rs.getInt("price") %>원</span>
+		        </div>
+		        <div class="detail-item">
+		            <span class="detail-label">영업시간:</span>
+		            <span class="detail-value"><%= rs.getFloat("opentime") %> ~ <%= rs.getFloat("closetime") %></span>
+		        </div>
+		        <div class="detail-item">
+				    <span class="detail-label">브레이크 타임:</span>
+				    <span class="detail-value"><%= rs.getString("breaktime") %></span>
+				</div>
+
+		        <div class="detail-item">
+		            <span class="detail-label">위치:</span>
+		            <span class="detail-value">인천광역시 <%= rs.getString("location") %></span>
+		        </div>
+		        <div class="detail-item">
+		            <span class="detail-label">네이버 평점:</span>
+		            <span class="detail-value"><%= rs.getString("navergrade") %></span>
+		        </div>
+		    </div>
+		</div>
+
         <%
                 } else {
                     out.println("<h2>존재하지 않는 식당입니다.</h2>");
@@ -341,10 +424,10 @@
 			        pstmt.setInt(1, Integer.parseInt(id));
 			        rs = pstmt.executeQuery();
 			
-			        while (rs.next()) {
+			        
 			%>
 			<div class="review-list">
-		        <% while (rs.next()) { %>
+		        <% 	while (rs.next()) { %>
 		        <div class="review-item">
 		            <strong><%= rs.getString("name") %> (Level <%= rs.getInt("level") %>)</strong>
 		            <div class="review-meta">
@@ -352,7 +435,9 @@
 		            </div>
 		            <p>별점: ★ <%= rs.getFloat("rating") %> / 5</p>
 		            <p><%= rs.getString("comment") %></p>
-		            <div class="like-dislike">
+		            
+		            <!-- 좋아요,싫어요 버튼 -->
+	            	<div class="like-dislike">
 		                <form action="likeReview.jsp" method="POST">
 		                    <input type="hidden" name="review_id" value="<%= rs.getInt("review_id") %>">
 		                    <input type="hidden" name="food_id" value="<%= id %>">
@@ -383,7 +468,7 @@
 		    </div>
 		</div>
 		<%
-		        }
+		        
 		    } catch (Exception e) {
 		        out.println("<h2>리뷰를 가져오는 중 오류가 발생했습니다: " + e.getMessage() + "</h2>");
 		        e.printStackTrace();

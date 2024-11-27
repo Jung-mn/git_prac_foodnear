@@ -109,6 +109,67 @@
         	font-size: 20px;
         	margin-top: 6px;
         }
+        .result-item {
+        display: flex;
+        background: #f9f9f9;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        margin-bottom: 20px;
+        overflow: hidden;
+        transition: transform 0.3s, box-shadow 0.3s;
+	    }
+	
+	    .result-item:hover {
+	        transform: translateY(-5px);
+	        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+	    }
+	
+	    .result-item img {
+	        width: 150px;
+	        height: 150px;
+	        object-fit: cover;
+	        border-top-left-radius: 12px;
+	        border-bottom-left-radius: 12px;
+	    }
+	
+	    .restaurant-info {
+	        padding: 15px;
+	        display: flex;
+	        flex-direction: column;
+	        justify-content: center;
+	    }
+	
+	    .restaurant-info h3 {
+	        margin: 0 0 10px;
+	        font-size: 22px;
+	        color: #333;
+	    }
+	
+	    .restaurant-info h3 a {
+	        text-decoration: none;
+	        color: #007bff;
+	        transition: color 0.3s;
+	    }
+	
+	    .restaurant-info h3 a:hover {
+	        color: #0056b3;
+	    }
+	
+	    .restaurant-info p {
+	        margin: 5px 0;
+	        font-size: 16px;
+	        color: #555;
+	    }
+	
+	    .info-label {
+	        font-weight: bold;
+	        color: #333;
+	    }
+	
+	    .rating {
+	        font-weight: bold;
+	        color: #e67e22;
+	    }
     </style>
 </head>
 <body>
@@ -228,17 +289,17 @@
                     String photo = rs.getString("photo");
         %>
         			<!-- 식당 정보 -->
-                    <div class="result-item">
-                        <img src="<%= photo %>" alt="식당 사진">
-                        <div>
-                            <h3><a href="/foodNear/foodnear/foodInfor.jsp?id=<%= id %>"><%= name %></a></h3>
-                            <p><strong>대표 메뉴:</strong> <%= bestmenu %></p>
-                            <p><strong>가격:</strong> <%= price %></p>
-                            <p><strong>영업시간:</strong> <%= opentime %> ~ <%= closetime %></p>
-                            <p><strong>평점:</strong> <%= f_rating %></p>
-                            <p><strong>네이버 평점:</strong> <%= navergrade %></p>
-                        </div>
-                    </div>
+					<div class="result-item">
+					    <img src="<%= photo %>" alt="식당 사진">
+					    <div class="restaurant-info">
+					        <h3><a href="/foodNear/foodnear/foodInfor.jsp?id=<%= id %>"><%= name %></a></h3>
+					        <p><span class="info-label">대표 메뉴:</span> <%= bestmenu %></p>
+					        <p><span class="info-label">가격:</span> <%= price %>원</p>
+					        <p><span class="info-label">영업시간:</span> <%= opentime %> ~ <%= closetime %></p>
+					        <p><span class="info-label">평점:</span> <span class="rating"><%= f_rating %></span></p>
+					        <p><span class="info-label">네이버 평점:</span> <span class="rating"><%= navergrade %></span></p>
+					    </div>
+					</div>
         <%
         	 }
             } catch (Exception e) {

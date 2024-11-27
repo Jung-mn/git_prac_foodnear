@@ -44,6 +44,18 @@
         } else {
             response.sendRedirect("foodInfor.jsp?id=" + foodId + "&error=delete_failed");
         }
+        
+        //foodIn을 int로 변환후 foodIdInt 변수에 저장
+        int foodIdInt = Integer.parseInt(foodId);
+        
+     	// 리뷰 삭제 후 해당 food_id에 대한 별점 평균값을 계산
+        String updateRatingQuery = "UPDATE foodnear f " +
+                                   "SET f.f_rating = (SELECT AVG(r.rating) FROM review r WHERE r.food_id = f.id) " +
+                                   "WHERE f.id = ?";
+        pstmt = conn.prepareStatement(updateRatingQuery);
+        pstmt.setInt(1, foodIdInt);
+        pstmt.executeUpdate();
+        
     } catch (Exception e) {
         e.printStackTrace();
         response.sendRedirect("foodInfor.jsp?id=" + foodId + "&error=exception");
